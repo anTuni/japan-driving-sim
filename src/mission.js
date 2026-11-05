@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { textBoardTexture } from './signs.js';
+import { getRank, submitRank, TOP, myName } from './rankapi.js';
 
 export const DIFFS = {
   easy: { name: '초급', limit: 5, desc: '위반 5회까지 허용' },
@@ -15,8 +16,7 @@ export const COURSE = [
 const LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 const fmt = (t) => `${String(Math.floor(t / 60)).padStart(2, '0')}:${String(Math.floor(t % 60)).padStart(2, '0')}.${Math.floor((t % 1) * 10)}`;
 
-export function loadRank(diff) { try { return JSON.parse(localStorage.getItem('jds.rank.' + diff) || '[]'); } catch { return []; } }
-function saveRank(diff, list) { localStorage.setItem('jds.rank.' + diff, JSON.stringify(list)); }
+export const fmtTime = fmt;
 
 export class Mission {
   constructor(scene, car, rules, ui, startPose) {
@@ -97,19 +97,22 @@ export class Mission {
       </div>`);
   }
 
-  success() {
+  async success() {
     this.state = 'success'; this.hud.classList.add('hidden'); this.ui.dest = null;
-    const list = loadRank(this.diff);
-    const qualifies = list.length < 5 || this.time < list[list.length - 1].time;
     const base = `<h1>미션 완료! 🎉</h1>
       <div class="sub">[${DIFFS[this.diff].name}] 기록 <b class="big-time">${fmt(this.time)}</b> · 위반 ${this.violations}회</div>`;
+    this.showOverlay(base + `<p class="muted">랭킹 확인 중…</p>`);
+    const { list, source } = await getRank(this.diff);
+    const qualifies = list.length < TOP || this.time < list[TOP - 1].time;
+    const src = source === 'server' ? '공유 랭킹' : '이 기기 기록';
     if (!qualifies) {
-      this.showOverlay(base + `<p class="muted">TOP 5에 들지 못했어요. 현재 5위 기록: ${fmt(list[4].time)}</p>${rankTable(this.diff)}
+      this.showOverlay(base + `<p class="muted">TOP ${TOP}에 들지 못했어요 (${src}). 현재 ${TOP}위: ${fmt(list[TOP - 1].time)}</p>${rankTable(list)}
         <div class="btn-row big"><button data-act="retry">다시 도전 (Enter)</button><button data-act="menu">난이도 변경</button><button data-act="free">자유 주행</button></div>`);
       return;
     }
-    this.initials = [0, 0, 0]; this.slot = 0;
-    this.showOverlay(base + `<h2>TOP 5 진입! 이니셜을 등록하세요 (←→ 칸 이동, ↑↓ 글자, Enter 등록)</h2>
+    const me = myName();
+    this.initials = me.length === 3 ? [...me].map(ch => LETTERS.indexOf(ch)) : [0, 0, 0]; this.slot = 0;
+    this.showOverlay(base + `<h2>TOP ${TOP} 진입! 이니셜을 등록하세요 (${src}) — ←→ 칸 이동, ↑↓ 글자, Enter 등록</h2>
       <div class="initials">${[0, 1, 2].map(i => `<div class="slot" data-slot="${i}"><button data-up="${i}">▲</button><div class="letter">A</div><button data-down="${i}">▼</button></div>`).join('')}</div>
       <div class="btn-row big"><button data-act="register">등록 (Enter)</button></div>`);
     this.renderInitials();
@@ -117,14 +120,15 @@ export class Mission {
   renderInitials() {
     this.overlay.querySelectorAll('.slot').forEach((s, i) => { s.querySelector('.letter').textContent = LETTERS[this.initials[i]]; s.classList.toggle('active', i === this.slot); });
   }
-  register() {
+  async register() {
     if (!this.initials) return;
     const name = this.initials.map(i => LETTERS[i]).join('');
     this.initials = null;
-    const list = loadRank(this.diff);
-    list.push({ name, time: this.time, violations: this.violations, date: new Date().toISOString().slice(0, 10) });
-    list.sort((a, b) => a.time - b.time); saveRank(this.diff, list.slice(0, 5));
-    this.showOverlay(`<h1>랭킹 등록 완료</h1><div class="sub">${name} · ${fmt(this.time)}</div>${rankTable(this.diff, name, this.time)}
+    this.showOverlay(`<h1>등록 중…</h1>`);
+    const entry = { name, time: Math.round(this.time * 10) / 10, violations: this.violations, date: new Date().toISOString().slice(0, 10) };
+    const { list, rank, source } = await submitRank(this.diff, entry);
+    const src = source === 'server' ? '공유 랭킹에 저장됨' : '이 기기에만 저장됨 (서버 미설정)';
+    this.showOverlay(`<h1>랭킹 등록 완료</h1><div class="sub">${name} · ${fmt(this.time)} · ${rank ? rank + '위' : ''} · ${src}</div>${rankTable(list, name, entry.time)}
       <div class="btn-row big"><button data-act="retry">다시 도전 (Enter)</button><button data-act="menu">난이도 변경</button><button data-act="free">자유 주행</button></div>`);
     this.ui.renderRankings();
   }
@@ -159,9 +163,8 @@ export class Mission {
   }
 }
 
-export function rankTable(diff, hlName, hlTime) {
-  const list = loadRank(diff);
-  if (!list.length) return `<p class="muted">아직 기록 없음</p>`;
-  return `<table class="rank"><thead><tr><th>#</th><th>이니셜</th><th>기록</th><th>위반</th><th>날짜</th></tr></thead><tbody>${list.map((r, i) =>
-    `<tr class="${r.name === hlName && r.time === hlTime ? 'me' : ''}"><td>${i + 1}</td><td>${r.name}</td><td>${fmt(r.time)}</td><td>${r.violations}</td><td>${r.date}</td></tr>`).join('')}</tbody></table>`;
+export function rankTable(list, hlName, hlTime, top = TOP) {
+  if (!list || !list.length) return `<p class="muted">아직 기록 없음</p>`;
+  return `<table class="rank"><thead><tr><th>#</th><th>이니셜</th><th>기록</th><th>위반</th><th>날짜</th></tr></thead><tbody>${list.slice(0, top).map((r, i) =>
+    `<tr class="${r.name === hlName && (hlTime == null || Math.abs(r.time - hlTime) < 0.15) ? 'me' : ''}"><td>${i + 1}</td><td>${r.name}</td><td>${fmt(r.time)}</td><td>${r.violations}</td><td>${r.date}</td></tr>`).join('')}</tbody></table>`;
 }

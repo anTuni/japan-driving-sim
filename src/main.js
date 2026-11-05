@@ -53,7 +53,7 @@ let touch = null;
 if (MOBILE) {
   touch = new TouchControls(input, {
     onSignal: (d) => car.setSignal(d), onCamera: () => { camMode = camMode === 'third' ? 'first' : 'third'; }, onWiper: () => toggleWiper(),
-    onHelp: () => ui.toggleRules(), onChecklist: () => ui.toggleChecklist(),
+    onHelp: () => ui.toggleRules(), onChecklist: () => ui.toggleChecklist(), onRank: () => ui.toggleRank(),
     onGear: (g) => { const r = car.setGear(g); if (!r.ok) ui.toast(r.msg, 'info'); }, onToast: (m) => ui.toast(m, 'info'),
   });
   ui.touch = touch;
@@ -73,6 +73,8 @@ function handleKeys() {
   for (const k of input.consumePressed()) {
     if (mission.handleKey(k)) continue;
     if (k === 'Enter' && ui.paused) { ui.hideOverlay(); if (!ui.rulesPanel.classList.contains('hidden')) ui.toggleRules(); continue; }
+    if (k === 'Escape' && !ui.rankModal.classList.contains('hidden')) { ui.toggleRank(); continue; }
+    if (k === 'r' && ui.overlay.classList.contains('hidden')) { ui.toggleRank(); continue; }
     if (k === 'Escape' || k === 'h') { ui.toggleRules(); continue; }
     if (ui.paused) continue;
     if (k === 'q') car.setSignal('L');

@@ -48,6 +48,22 @@ npm run build      # dist/ 정적 빌드
 - 초과 시 미션 실패 → 위반 내역 표시 → Enter로 다시 도전.
 - 완주 시 난이도별 TOP 5 랭킹. 진입하면 이니셜 3글자(←→↑↓ 또는 클릭, 알파벳 키 직접 입력) 등록. 기록은 브라우저 localStorage(`jds.rank.<난이도>`)에 저장.
 
+## 공유 랭킹 서버 (선택)
+
+기본은 브라우저 localStorage에만 저장됩니다. 팀원끼리 랭킹을 공유하려면 Cloudflare Workers + KV(무료)로 API를 올리면 됩니다. 코드는 `server/`에 있습니다.
+
+```bash
+npx wrangler login          # 브라우저로 1회 로그인
+./server/deploy.sh          # KV 생성 + Worker 배포 → https://jds-rank.<계정>.workers.dev 출력
+```
+
+출력된 주소를 `.env.production`의 `VITE_RANK_API=`에 적고 `git push`하면 GitHub Pages 빌드에 반영돼 모두가 같은 랭킹을 봅니다.
+테스트용으로는 브라우저 콘솔에서 `localStorage.setItem('jds.rankApi', 'https://...')` 후 새로고침해도 됩니다.
+서버가 꺼져 있거나 미설정이면 자동으로 로컬 저장으로 돌아갑니다.
+
+- API: `GET /rank?diff=easy|normal|hard|all`, `POST /rank {diff, name(3글자), time(초), violations}`. 난이도별 상위 20개 보관.
+- 🏆 랭킹 버튼(키보드 R)으로 언제든 조회. 내 이니셜은 초록색으로 표시.
+
 ## 학습 체크리스트 (12개)
 
 좌측통행 · 깜빡이 · 좌회전 작게 · 우회전 크게 · 빨간불 전부 정지 · 화살표 신호 · 止まれ 완전 정지 · 보행자 우선 · 앞차 거리 유지 · 우측 가게 진입 · 지정 주차장 · 초록불 유턴
@@ -64,4 +80,6 @@ npm run build      # dist/ 정적 빌드
 - `src/ui.js` HUD·기어봉·미니맵·토스트
 - `src/mission.js` 미션 코스·난이도·타이머·실패/성공·랭킹
 - `src/touch.js` 모바일 터치 조작(핸들·페달·기울이기)
+- `src/rankapi.js` 랭킹 저장소(서버/로컬 자동 전환)
+- `server/` 공유 랭킹 Cloudflare Worker + 배포 스크립트
 - `src/main.js` 렌더러·카메라·루프 (`window.__sim` 디버그 훅)

@@ -49,6 +49,7 @@ export class TouchControls {
     q('.t-wiper').addEventListener('pointerdown', e => { e.preventDefault(); this.h.onWiper(); });
     q('.t-help').addEventListener('pointerdown', e => { e.preventDefault(); this.h.onHelp(); });
     q('.t-check').addEventListener('pointerdown', e => { e.preventDefault(); this.h.onChecklist(); });
+    q('.t-rank').addEventListener('pointerdown', e => { e.preventDefault(); this.h.onRank(); });
     this.root.querySelectorAll('.t-gear button').forEach(b => b.addEventListener('pointerdown', e => { e.preventDefault(); this.h.onGear(b.dataset.gear); }));
     this.tiltBtn = q('.t-tilt');
     this.tiltBtn.addEventListener('pointerdown', e => { e.preventDefault(); this.toggleTilt(); });

@@ -1,0 +1,8 @@
+name = "jds-rank"
+main = "worker.js"
+compatibility_date = "2025-10-01"
+
+# `./deploy.sh` 가 KV 네임스페이스를 만들고 아래 id 를 채웁니다.
+[[kv_namespaces]]
+binding = "RANK"
+id = "REPLACE_ME"

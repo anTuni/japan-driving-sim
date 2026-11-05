@@ -50,8 +50,9 @@
         <div id="score-row"><div><span id="score-val">100</span> <small>안전 점수</small></div><small>N↑</small></div>
         <div class="btn-row">
           <button id="cam-btn">3인칭 (C)</button>
-          <button id="help-btn" class="kb-only">법규 요약 (H)</button>
-          <button id="reset-btn">리셋 (⌫)</button>
+          <button id="rank-btn">🏆 랭킹</button>
+          <button id="help-btn" class="kb-only">법규 (H)</button>
+          <button id="reset-btn">리셋</button>
         </div>
       </div>
       <div id="checklist" class="panel">
@@ -69,6 +70,12 @@
     </div>
     <div id="toasts"></div>
     <div id="mission-overlay" class="hidden"></div>
+    <div id="rank-modal" class="panel hidden">
+      <button class="close" id="rank-close" aria-label="닫기">×</button>
+      <h1>🏆 랭킹</h1>
+      <div class="rank-head"><span id="rank-modal-source" class="muted"></span><button id="rank-refresh">새로고침</button></div>
+      <div id="rank-body" class="rank-cols"></div>
+    </div>
 
     <div id="touch" class="hidden">
       <div class="t-left">
@@ -92,6 +99,7 @@
         <button class="t-btn t-cam" aria-label="시점 전환">👁 시점</button>
         <button class="t-btn t-wiper" aria-label="와이퍼">💧 와이퍼</button>
         <button class="t-btn t-check" aria-label="체크리스트">✓ 체크</button>
+        <button class="t-btn t-rank" aria-label="랭킹">🏆 랭킹</button>
         <button class="t-btn t-help" aria-label="법규 요약">📖 법규</button>
       </div>
     </div>
@@ -140,6 +148,7 @@
           <button class="diff-btn" data-diff="hard"><b>상급</b><small>위반 1회면 실패</small></button>
         </div>
         <div id="rankings"></div>
+        <div id="rank-source" class="muted"></div>
         <h2 class="kb-only">조작</h2>
         <div class="keygrid kb-only">
           <div><b><kbd>W</kbd></b> 엑셀</div><div><b><kbd>S</kbd></b> 브레이크 (후진 아님)</div>

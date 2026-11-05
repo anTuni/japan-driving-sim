@@ -1,5 +1,6 @@
 import { GRID, ROAD_END, NODES, ZONES } from './config.js';
 import { rankTable, DIFFS } from './mission.js';
+import { getAll, online, myName, DIFF_KEYS } from './rankapi.js';
 
 const $ = (s) => document.querySelector(s);
 
@@ -18,6 +19,10 @@ export class UI {
     $('#reset-btn').addEventListener('click', () => handlers.onReset());
     $('#help-btn').addEventListener('click', () => this.toggleRules());
     $('#start-btn').addEventListener('click', () => this.hideOverlay());
+    $('#rank-btn').addEventListener('click', () => this.toggleRank());
+    $('#rank-close').addEventListener('click', () => this.toggleRank());
+    $('#rank-refresh').addEventListener('click', () => this.renderRankModal());
+    this.rankModal = $('#rank-modal');
     document.querySelectorAll('.diff-btn').forEach(b => b.addEventListener('click', () => { this.overlay.classList.add('hidden'); handlers.onMission(b.dataset.diff); }));
     this.dest = null; this.renderRankings();
     $('#rules-close').addEventListener('click', () => this.toggleRules());
@@ -33,9 +38,21 @@ export class UI {
     }
     this.checkCount = $('#check-count'); this.total = checklist.length; this.doneN = 0;
   }
-  get paused() { return !this.overlay.classList.contains('hidden') || !this.rulesPanel.classList.contains('hidden') || !document.querySelector('#mission-overlay').classList.contains('hidden'); }
+  get paused() { return !this.overlay.classList.contains('hidden') || !this.rulesPanel.classList.contains('hidden') || !document.querySelector('#mission-overlay').classList.contains('hidden') || !this.rankModal.classList.contains('hidden'); }
   showOverlay() { this.renderRankings(); this.overlay.classList.remove('hidden'); }
-  renderRankings() { $('#rankings').innerHTML = Object.keys(DIFFS).map(d => `<div><h3>${DIFFS[d].name} TOP 5</h3>${rankTable(d)}</div>`).join(''); }
+  async renderRankings() {
+    const el = $('#rankings'); el.innerHTML = `<p class="muted">랭킹 불러오는 중…</p>`;
+    const { lists, source } = await getAll(); const me = myName();
+    el.innerHTML = DIFF_KEYS.map(d => `<div><h3>${DIFFS[d].name} TOP 5</h3>${rankTable(lists[d], me, null)}</div>`).join('');
+    $('#rank-source').textContent = source === 'server' ? '🌐 공유 랭킹 (서버)' : online() ? '⚠ 서버 연결 실패 — 이 기기 기록' : '📱 이 기기 기록 (서버 미설정)';
+  }
+  toggleRank() { const open = this.rankModal.classList.toggle('hidden'); if (!open) this.renderRankModal(); }
+  async renderRankModal() {
+    const body = $('#rank-body'); body.innerHTML = `<p class="muted">불러오는 중…</p>`;
+    const { lists, source } = await getAll(); const me = myName();
+    $('#rank-modal-source').textContent = (source === 'server' ? '🌐 공유 랭킹' : online() ? '⚠ 서버 연결 실패 — 이 기기 기록' : '📱 이 기기 기록') + (me ? ` · 내 이니셜 ${me}` : '');
+    body.innerHTML = DIFF_KEYS.map(d => `<div><h3>${DIFFS[d].name} <small>${DIFFS[d].desc}</small></h3>${rankTable(lists[d], me, null, 10)}</div>`).join('');
+  }
   hideOverlay() { this.overlay.classList.add('hidden'); this.h.onStart && this.h.onStart(); }
   toggleRules() { this.rulesPanel.classList.toggle('hidden'); }
   toggleChecklist() { if (document.body.classList.contains('is-touch')) this.checkPanel.classList.toggle('open'); else this.checkPanel.classList.toggle('collapsed'); }
@@ -91,15 +108,25 @@ export class UI {
     for (const o of traffic.cars) { if (o.x > 1000) continue; c.beginPath(); c.arc(X(o.x), Z(o.z), 2.2 * S, 0, Math.PI * 2); c.fill(); }
     c.fillStyle = '#ff9bd0';
     for (const p of traffic.peds) c.fillRect(X(p.x) - 1, Z(p.z) - 1, 2, 2);
-    // 목적지
+    const t = performance.now() / 1000;
+    // 목적지: 플레이어→목적지 점선 + 펄스 링 + 핀
     if (this.dest) {
-      const t = performance.now() / 1000;
-      c.strokeStyle = '#3fa9ff'; c.lineWidth = 2.5; c.beginPath(); c.arc(X(this.dest.x), Z(this.dest.z), (6 + 3 * Math.sin(t * 4)) * S, 0, Math.PI * 2); c.stroke();
-      c.fillStyle = '#3fa9ff'; c.beginPath(); c.arc(X(this.dest.x), Z(this.dest.z), 3 * S, 0, Math.PI * 2); c.fill();
-      c.font = `bold ${11 * S / 0.6}px sans-serif`; c.fillText('🏁', X(this.dest.x) + 5 * S, Z(this.dest.z) - 4 * S);
+      const dx = X(this.dest.x), dz = Z(this.dest.z);
+      c.save(); c.setLineDash([5, 5]); c.lineDashOffset = -t * 20; c.strokeStyle = 'rgba(63,169,255,.75)'; c.lineWidth = 2.2;
+      c.beginPath(); c.moveTo(X(car.x), Z(car.z)); c.lineTo(dx, dz); c.stroke(); c.restore();
+      const pulse = 12 + 6 * (0.5 + 0.5 * Math.sin(t * 4));
+      c.strokeStyle = 'rgba(63,169,255,.9)'; c.lineWidth = 3.5; c.beginPath(); c.arc(dx, dz, pulse * S, 0, Math.PI * 2); c.stroke();
+      c.fillStyle = 'rgba(63,169,255,.25)'; c.beginPath(); c.arc(dx, dz, pulse * S, 0, Math.PI * 2); c.fill();
+      // 핀
+      c.fillStyle = '#ff3b3b'; c.strokeStyle = '#fff'; c.lineWidth = 2;
+      c.beginPath(); c.moveTo(dx, dz); c.lineTo(dx - 10 * S, dz - 20 * S); c.arc(dx, dz - 20 * S, 10 * S, Math.PI, 0); c.lineTo(dx, dz); c.closePath(); c.fill(); c.stroke();
+      c.fillStyle = '#fff'; c.beginPath(); c.arc(dx, dz - 20 * S, 4 * S, 0, Math.PI * 2); c.fill();
     }
-    // 플레이어
+    // 플레이어: 반투명 헤일로 + 큰 화살표(흰 채움, 검은 외곽선)
     c.save(); c.translate(X(car.x), Z(car.z)); c.rotate(-car.phi);
-    c.fillStyle = '#ffffff'; c.beginPath(); c.moveTo(0, -5 * S); c.lineTo(3.5 * S, 4 * S); c.lineTo(-3.5 * S, 4 * S); c.closePath(); c.fill(); c.restore();
+    c.fillStyle = 'rgba(255,255,255,.25)'; c.beginPath(); c.arc(0, 0, 18 * S, 0, Math.PI * 2); c.fill();
+    c.beginPath(); c.moveTo(0, -15 * S); c.lineTo(10 * S, 11 * S); c.lineTo(0, 6 * S); c.lineTo(-10 * S, 11 * S); c.closePath();
+    c.fillStyle = '#ffffff'; c.fill(); c.lineWidth = 3; c.strokeStyle = '#111'; c.lineJoin = 'round'; c.stroke();
+    c.restore();
   }
 }
