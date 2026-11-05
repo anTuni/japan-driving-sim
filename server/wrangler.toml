@@ -5,4 +5,4 @@ compatibility_date = "2025-10-01"
 # `./deploy.sh` 가 KV 네임스페이스를 만들고 아래 id 를 채웁니다.
 [[kv_namespaces]]
 binding = "RANK"
-id = "REPLACE_ME"
+id = "f1827dae2f804eeba4ec3c6303c1925d"
