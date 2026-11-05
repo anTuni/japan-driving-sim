@@ -1,0 +1,14 @@
+{
+  "name": "일본 운전 시뮬레이터",
+  "short_name": "일본운전",
+  "start_url": "./",
+  "display": "fullscreen",
+  "orientation": "landscape",
+  "background_color": "#15181d",
+  "theme_color": "#15181d",
+  "icons": [
+    { "src": "./icon.svg", "sizes": "any", "type": "image/svg+xml" },
+    { "src": "./icon-180.png", "sizes": "180x180", "type": "image/png" },
+    { "src": "./icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

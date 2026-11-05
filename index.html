@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <link rel="icon" href="data:," />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="일본운전" />
+  <meta name="theme-color" content="#15181d" />
+  <link rel="manifest" href="./manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="./icon-180.png" />
+  <title>일본 운전 시뮬레이터 — 좌측통행 · 신호 · 止まれ</title>
+</head>
+<body>
+  <canvas id="c" tabindex="0"></canvas>
+  <div id="hud">
+    <div id="left-panel" class="panel">
+      <div id="speed"><span id="speed-val">0</span><span class="unit">km/h</span></div>
+      <div id="gear-row">
+        <span id="sig-l" class="sig" title="좌측 깜빡이 (Q)">◀</span>
+        <span id="gear-val">P</span>
+        <span id="sig-r" class="sig" title="우측 깜빡이 (E)">▶</span>
+      </div>
+      <div id="wiper-ind" class="hidden">와이퍼 작동 중 — 깜빡이는 오른쪽 레버(Q/E)</div>
+      <div id="light-ind" class="light none">전방 신호 없음</div>
+      <div id="keys">
+        <b>W</b> 엑셀 · <b>S</b> 브레이크 · <b>A/D</b> 핸들<br />
+        <b>Q/E</b> 깜빡이 · <b>X</b> 와이퍼(레버 반대쪽) · <b>C</b> 시점<br />
+        <b>1~4</b> P/R/N/D · <b>H</b> 법규 요약 · <b>⌫</b> 리셋
+      </div>
+    </div>
+
+    <div id="shifter" class="panel">
+      <div class="label">기어봉 (클릭)</div>
+      <button data-gear="P">P</button>
+      <button data-gear="R">R</button>
+      <button data-gear="N">N</button>
+      <button data-gear="D">D</button>
+    </div>
+    <div id="wheel-wrap">
+      <div id="wheel-icon"></div>
+      <button id="wiper-btn">와이퍼 (X)</button>
+    </div>
+
+    <div id="right-panel">
+      <div class="panel">
+        <canvas id="minimap" width="420" height="420"></canvas>
+        <div id="score-row"><div><span id="score-val">100</span> <small>안전 점수</small></div><small>N↑</small></div>
+        <div class="btn-row">
+          <button id="cam-btn">3인칭 (C)</button>
+          <button id="help-btn" class="kb-only">법규 요약 (H)</button>
+          <button id="reset-btn">리셋 (⌫)</button>
+        </div>
+      </div>
+      <div id="checklist" class="panel">
+        <h3>학습 체크리스트 (T) <span id="check-count">0/12</span></h3>
+        <ul id="check-list"></ul>
+      </div>
+    </div>
+
+    <div id="mission-hud" class="panel hidden">
+      <span class="m-arrow">➤</span>
+      <span class="m-dest">목적지</span>
+      <span class="m-dist">0m</span>
+      <span class="m-time">00:00.0</span>
+      <span class="m-viol">위반 0/3</span>
+    </div>
+    <div id="toasts"></div>
+    <div id="mission-overlay" class="hidden"></div>
+
+    <div id="touch" class="hidden">
+      <div class="t-left">
+        <div class="t-row">
+          <button class="t-btn t-sig t-sig-l" aria-label="좌측 깜빡이">◀</button>
+          <button class="t-btn t-tilt" aria-label="기울이기 조향">📱 기울이기</button>
+          <button class="t-btn t-sig t-sig-r" aria-label="우측 깜빡이">▶</button>
+        </div>
+        <div class="t-wheel" aria-label="핸들"><div class="t-wheel-hub"></div></div>
+      </div>
+      <div class="t-right">
+        <div class="t-row t-gear">
+          <button data-gear="P">P</button><button data-gear="R">R</button><button data-gear="N">N</button><button data-gear="D">D</button>
+        </div>
+        <div class="t-pedals">
+          <button class="t-pedal t-brake" aria-label="브레이크"><span>BRAKE</span></button>
+          <button class="t-pedal t-gas" aria-label="엑셀"><span>GAS</span></button>
+        </div>
+      </div>
+      <div class="t-top">
+        <button class="t-btn t-cam" aria-label="시점 전환">👁 시점</button>
+        <button class="t-btn t-wiper" aria-label="와이퍼">💧 와이퍼</button>
+        <button class="t-btn t-check" aria-label="체크리스트">✓ 체크</button>
+        <button class="t-btn t-help" aria-label="법규 요약">📖 법규</button>
+      </div>
+    </div>
+    <div id="rotate-hint" class="hidden"><div><div class="phone">📱</div>가로로 돌려주세요</div></div>
+
+    <div id="rules-panel" class="panel hidden">
+      <button class="close" id="rules-close" aria-label="닫기">×</button>
+      <h1>일본 운전 핵심 법규 요약</h1>
+      <p style="color:#a9adb3;font-size:12.5px;margin:0">참고: 울트라위스키 「일본에서 운전하는 법 완벽 정리」(youtu.be/lUlTnUY2rXk) + 팀 메모</p>
+      <h2>기본</h2>
+      <ul>
+        <li><b>좌측통행.</b> 운전석은 오른쪽. 왼쪽 차폭감이 달라서 왼쪽으로 좁게 지나칠 때 긁히기 쉬움 → 특히 주의.</li>
+        <li><b>좌회전은 작게, 우회전은 크게.</b> 이것만 명심해도 OK. 우회전은 교차로 중앙까지 슬금슬금 진출해서 맞은편 차가 없을 때 회전.</li>
+        <li>교차로에서는 차량 방향 확인을 한국보다 한두 번 더.</li>
+        <li><b>깜빡이 레버는 오른쪽</b>(와이퍼가 왼쪽). 와이퍼가 켜져도 당황 말고 반대편 조작.</li>
+      </ul>
+      <h2>신호등</h2>
+      <ul>
+        <li><b>빨간불이면 좌·우·직진 전부 금지.</b> 한국식 "빨간불 우회전" 절대 금지.</li>
+        <li><b>초록불(큰 원)</b>이면 좌·우·직진 다 가능. 우회전은 맞은편 직진 차량 보내고.</li>
+        <li><b>초록불 유턴 기본 가능.</b> 유턴금지 표지가 있는 곳만 불가.</li>
+        <li><b>화살표 신호:</b> 빨간불 + 초록 화살표 = 화살표 방향만 진행 가능 (←↑ 두 개면 좌·직진만, → 면 우회전만). 복잡한 도심 교차로에만 있음.</li>
+      </ul>
+      <h2>정지 · 보행자 · 주차</h2>
+      <ul>
+        <li><b>止まれ(정지) 표지:</b> 정지선에서 완전 정지(0km/h) 후 출발.</li>
+        <li><b>보행자 우선 철저히.</b> 앞유리 선팅이 없어 수신호·인사가 잘 통하니 적극 활용.</li>
+        <li><b>주차는 반드시 지정 주차장.</b> 대로변 정차·주차는 하지 말 것. 잠깐 내려주고 바로 이동.</li>
+        <li>식당 등 주차장이 없으면 근처 코인 주차장/제휴 주차장 → 인원 먼저 내리고 드라이버만 이동하면 시간 절약.</li>
+      </ul>
+      <h2>우측 가게 진입 · 앞차 주의</h2>
+      <ul>
+        <li>중앙선이 있어도 <b>반대편(우측) 가게로 바로 우회전 진입 가능.</b> 진입 위치에서 깜빡이 켜고, 맞은편 차 없으면 넘어감.</li>
+        <li>그래서 <b>앞차가 갑자기 멈춰서 깜빡이 켜고 대기</b>할 수 있음 → 앞차에 너무 붙어 빠르게 달리지 말 것.</li>
+      </ul>
+    </div>
+
+    <div id="overlay">
+      <div class="card">
+        <h1>일본 운전 시뮬레이터 🚗</h1>
+        <div class="sub">알파드 미니밴 · 좌측통행 · 운전석 오른쪽 — 난이도를 골라 미션을 시작하거나 자유 주행으로 연습하세요</div>
+        <h2>미션: 미니맵의 목적지 3곳을 순서대로 최대한 빨리 (편의점 → 지정 주차장 → 공항 터미널)</h2>
+        <div class="diff-row">
+          <button class="diff-btn" data-diff="easy"><b>초급</b><small>위반 5회까지 허용</small></button>
+          <button class="diff-btn" data-diff="normal"><b>중급</b><small>위반 3회까지 허용</small></button>
+          <button class="diff-btn" data-diff="hard"><b>상급</b><small>위반 1회면 실패</small></button>
+        </div>
+        <div id="rankings"></div>
+        <h2 class="kb-only">조작</h2>
+        <div class="keygrid kb-only">
+          <div><b><kbd>W</kbd></b> 엑셀</div><div><b><kbd>S</kbd></b> 브레이크 (후진 아님)</div>
+          <div><b><kbd>A</kbd> / <kbd>D</kbd></b> 핸들</div><div><b>기어봉 클릭</b> 또는 <kbd>1</kbd>~<kbd>4</kbd> = P/R/N/D</div>
+          <div><b><kbd>Q</kbd> / <kbd>E</kbd></b> 좌/우 깜빡이</div><div><b><kbd>X</kbd></b> 와이퍼 (깜빡이 반대쪽 레버)</div>
+          <div><b><kbd>C</kbd></b> 1인칭 / 3인칭</div><div><b><kbd>H</kbd></b> 법규 요약 · <kbd>⌫</kbd> 리셋</div>
+        </div>
+        <h2 class="touch-only">터치 조작 (가로 모드)</h2>
+        <ul class="touch-only">
+          <li>왼쪽 <b>핸들을 드래그</b>해서 조향 (놓으면 중앙 복귀). 📱 버튼으로 <b>기울이기 조향</b> 전환.</li>
+          <li>오른쪽 <b>GAS / BRAKE</b> 페달 (브레이크는 후진이 아님). 후진은 기어 <b>R</b>, 주차는 <b>P</b>.</li>
+          <li>핸들 위 ◀ ▶ 깜빡이. 홈 화면에 추가하면 전체 화면으로 즐길 수 있어요.</li>
+        </ul>
+        <h2>지도</h2>
+        <ul>
+          <li>3×3 교차로 도시. 가운데는 <b>화살표 신호</b>, 네 모서리는 <b>止まれ</b>, 동쪽 교차로는 <b>유턴 금지</b>.</li>
+          <li>출발 도로를 동쪽으로 가면 오른쪽에 <b>편의점</b>(우측 가게 진입 연습), 앞에 가는 노란 차가 갑자기 멈춰 우회전 대기합니다.</li>
+          <li>중앙 교차로에서 남쪽으로 가면 왼쪽에 <b>지정 주차장(P)</b>.</li>
+        </ul>
+        <h2>핵심 한 줄</h2>
+        <ul><li>좌회전 작게 · 우회전 크게 · 빨간불엔 전부 정지 · 止まれ는 완전 정지 · 보행자 우선 · 주차는 주차장</li></ul>
+        <button id="start-btn" class="secondary">자유 주행 <span class="kb-only">(Enter)</span> — 미션 없이 연습</button>
+      </div>
+    </div>
+  </div>
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>
