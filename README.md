@@ -53,9 +53,13 @@ npm run build      # dist/ 정적 빌드
 기본은 브라우저 localStorage에만 저장됩니다. 팀원끼리 랭킹을 공유하려면 Cloudflare Workers + KV(무료)로 API를 올리면 됩니다. 코드는 `server/`에 있습니다.
 
 ```bash
-npx wrangler login          # 브라우저로 1회 로그인
+# 인증 (둘 중 하나)
+npx wrangler login                                   # A. 브라우저 OAuth
+echo 'CLOUDFLARE_API_TOKEN=발급한토큰' > server/.env   # B. API 토큰 (git 제외됨)
 ./server/deploy.sh          # KV 생성 + Worker 배포 → https://jds-rank.<계정>.workers.dev 출력
 ```
+
+API 토큰은 Cloudflare 대시보드 → 내 프로필 → API 토큰 → "Cloudflare Workers 편집" 템플릿으로 만들면 Workers 스크립트와 KV 권한이 함께 들어갑니다.
 
 출력된 주소를 `.env.production`의 `VITE_RANK_API=`에 적고 `git push`하면 GitHub Pages 빌드에 반영돼 모두가 같은 랭킹을 봅니다.
 테스트용으로는 브라우저 콘솔에서 `localStorage.setItem('jds.rankApi', 'https://...')` 후 새로고침해도 됩니다.

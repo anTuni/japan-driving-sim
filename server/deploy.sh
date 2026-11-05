@@ -1,8 +1,13 @@
 #!/usr/bin/env bash
 # 공유 랭킹 서버 배포 (Cloudflare Workers + KV, 무료 플랜으로 충분)
-# 1) npx wrangler login   (브라우저 1회 로그인)   2) ./server/deploy.sh
+# 방법 A) npx wrangler login (브라우저 OAuth)
+# 방법 B) API 토큰: server/.env 에 CLOUDFLARE_API_TOKEN=... 저장 (git 제외) 또는 환경변수로 export
 set -euo pipefail
 cd "$(dirname "$0")"
+[ -f .env ] && set -a && . ./.env && set +a
+if [ -z "${CLOUDFLARE_API_TOKEN:-}" ] && ! npx -y wrangler@4 whoami >/dev/null 2>&1; then
+  echo "Cloudflare 인증이 없습니다. server/.env 에 CLOUDFLARE_API_TOKEN=... 을 넣거나 npx wrangler login 을 실행하세요."; exit 1
+fi
 if grep -q 'id = "REPLACE_ME"' wrangler.toml; then
   echo "▶ KV 네임스페이스 생성"
   OUT=$(npx -y wrangler@4 kv namespace create RANK 2>&1)
