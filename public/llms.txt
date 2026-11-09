@@ -12,6 +12,6 @@
 - 국제운전면허증(제네바협약) + 한국 면허증 + 여권 소지 필수
 
 ## 페이지
-- [시뮬레이터 (게임)](https://antuni.github.io/japan-driving-sim/): 3D 주행, 교통법규 자동 판정, 난이도별 미션, 공유 랭킹, 모바일 터치 지원
-- [일본 운전 하는 법 총정리 가이드](https://antuni.github.io/japan-driving-sim/guide.html): 국제면허, 좌측통행, 신호, 정지, 속도, 주차, 렌터카, FAQ
+- [시뮬레이터 (게임)](https://drive.an-tuni.com/): 3D 주행, 교통법규 자동 판정, 난이도별 미션, 공유 랭킹, 모바일 터치 지원
+- [일본 운전 하는 법 총정리 가이드](https://drive.an-tuni.com/guide.html): 국제면허, 좌측통행, 신호, 정지, 속도, 주차, 렌터카, FAQ
 - [소스 코드 (GitHub)](https://github.com/anTuni/japan-driving-sim)

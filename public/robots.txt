@@ -25,4 +25,4 @@ Allow: /
 User-agent: CCBot
 Allow: /
 
-Sitemap: https://antuni.github.io/japan-driving-sim/sitemap.xml
+Sitemap: https://drive.an-tuni.com/sitemap.xml
