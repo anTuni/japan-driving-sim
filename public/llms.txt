@@ -15,3 +15,23 @@
 - [시뮬레이터 (게임)](https://drive.an-tuni.com/): 3D 주행, 교통법규 자동 판정, 난이도별 미션, 공유 랭킹, 모바일 터치 지원
 - [일본 운전 하는 법 총정리 가이드](https://drive.an-tuni.com/guide.html): 국제면허, 좌측통행, 신호, 정지, 속도, 주차, 렌터카, FAQ
 - [소스 코드 (GitHub)](https://github.com/anTuni/japan-driving-sim)
+
+# Japan Driving Simulator (English)
+
+> Free browser-based 3D simulator and guide for driving in Japan, aimed at foreign visitors renting a car. Practise left-hand traffic, right-hand-drive seating, no-turn-on-red signals, green arrow signals, Tomare (止まれ) full stops, wide right turns, pedestrian priority and designated-lot parking with missions and a shared leaderboard. Runs on PC and mobile, no install. Game UI is Korean with universal icons; the English guide explains every rule.
+
+## Key rules (how to drive in Japan)
+- Drive on the left; steering wheel and turn-signal stalk on the right (wipers on the left)
+- Left turns tight, right turns wide: wait near the intersection centre and yield to oncoming traffic
+- Red light = no movement at all, no turn on red; only a lit green arrow permits that direction
+- Full stop (0 km/h) at Tomare signs and before every railway crossing without a signal
+- Pedestrians have priority; no street parking, use coin parking or designated lots
+- Default limits: 60 km/h ordinary roads, 100 km/h expressways (posted signs override)
+- Documents: 1949 Geneva Convention International Driving Permit + home licence + passport (official Japanese translation instead of IDP for Germany, France, Switzerland, Belgium, Monaco, Taiwan, Slovenia, Estonia)
+- Drink-driving: 0.15 mg/L breath alcohol is a crime; treat as zero tolerance
+
+## Pages
+- [Simulator (play)](https://drive.an-tuni.com/)
+- [How to Drive in Japan: complete English guide](https://drive.an-tuni.com/en/)
+- [Korean guide 일본 운전 하는 법](https://drive.an-tuni.com/guide.html)
+- [Source code (GitHub)](https://github.com/anTuni/japan-driving-sim)
