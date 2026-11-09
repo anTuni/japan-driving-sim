@@ -11,7 +11,58 @@
   <meta name="theme-color" content="#15181d" />
   <link rel="manifest" href="./manifest.webmanifest" />
   <link rel="apple-touch-icon" href="./icon-180.png" />
-  <title>일본 운전 시뮬레이터 — 좌측통행 · 신호 · 止まれ</title>
+  <title>일본 운전 시뮬레이터 — 일본 운전 방법·교통법규를 3D 게임으로 연습 (무료, 모바일 지원)</title>
+  <meta name="description" content="일본 운전 하는 법을 브라우저에서 바로 연습하는 무료 3D 시뮬레이터. 좌측통행, 빨간불 우회전 금지, 화살표 신호, 止まれ 완전 정지, 우회전 요령, 보행자 우선, 주차 규칙을 미션과 랭킹으로 익히세요. 일본 렌터카 여행 전 필수 연습." />
+  <meta name="keywords" content="일본 운전, 일본 운전 방법, 일본 운전 하는 법, 일본 교통법규, 일본 운전 시뮬레이터, 일본 운전 게임, 좌측통행 연습, 일본 렌트카, 오키나와 운전, 이시가키 렌트카, 국제운전면허증" />
+  <link rel="canonical" href="https://antuni.github.io/japan-driving-sim/" />
+  <meta name="robots" content="index, follow, max-image-preview:large" />
+  <meta property="og:type" content="website" />
+  <meta property="og:locale" content="ko_KR" />
+  <meta property="og:site_name" content="일본 운전 시뮬레이터" />
+  <meta property="og:title" content="일본 운전 시뮬레이터 — 일본 운전 방법·교통법규를 게임으로 연습" />
+  <meta property="og:description" content="좌측통행·신호·止まれ·우회전·주차. 일본 렌터카 여행 전 무료 3D 시뮬레이터로 연습하세요. PC·모바일." />
+  <meta property="og:url" content="https://antuni.github.io/japan-driving-sim/" />
+  <meta property="og:image" content="https://antuni.github.io/japan-driving-sim/og.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="일본 운전 시뮬레이터 — 일본 운전 방법을 게임으로" />
+  <meta name="twitter:description" content="좌측통행·신호·止まれ·우회전·주차를 미션으로 연습. 무료, 설치 없음, 모바일 지원." />
+  <meta name="twitter:image" content="https://antuni.github.io/japan-driving-sim/og.png" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": ["WebApplication", "VideoGame"],
+        "@id": "https://antuni.github.io/japan-driving-sim/#app",
+        "name": "일본 운전 시뮬레이터",
+        "alternateName": "Japan Driving Simulator",
+        "url": "https://antuni.github.io/japan-driving-sim/",
+        "description": "한국 운전자를 위한 무료 3D 일본 운전 연습 웹앱. 좌측통행, 빨간불 전방향 정지, 화살표 신호, 止まれ 완전 정지, 우회전 요령, 보행자 우선, 주차 규칙을 미션·랭킹으로 연습.",
+        "applicationCategory": "GameApplication",
+        "genre": ["운전 시뮬레이션", "교육"],
+        "operatingSystem": "Web browser (PC, iOS, Android)",
+        "browserRequirements": "WebGL",
+        "inLanguage": "ko",
+        "isAccessibleForFree": true,
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "KRW" },
+        "image": "https://antuni.github.io/japan-driving-sim/og.png",
+        "author": { "@type": "Person", "name": "Tuni", "url": "https://github.com/anTuni" },
+        "about": ["일본 운전", "일본 교통법규", "좌측통행", "일본 렌터카"],
+        "featureList": ["좌측통행·우측 운전석 1인칭/3인칭 주행", "교통법규 자동 판정(신호·정지선·역주행·보행자·주차)", "난이도별 미션과 공유 랭킹", "모바일 터치 조작·기울이기 조향"]
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://antuni.github.io/japan-driving-sim/#site",
+        "url": "https://antuni.github.io/japan-driving-sim/",
+        "name": "일본 운전 시뮬레이터",
+        "inLanguage": "ko",
+        "hasPart": { "@type": "WebPage", "url": "https://antuni.github.io/japan-driving-sim/guide.html", "name": "일본 운전 하는 법 총정리" }
+      }
+    ]
+  }
+  </script>
 </head>
 <body>
   <canvas id="c" tabindex="0"></canvas>
@@ -170,6 +221,7 @@
         </ul>
         <h2>핵심 한 줄</h2>
         <ul><li>좌회전 작게 · 우회전 크게 · 빨간불엔 전부 정지 · 止まれ는 완전 정지 · 보행자 우선 · 주차는 주차장</li></ul>
+        <p class="seo-intro">이 시뮬레이터는 한국 운전자가 <strong>일본 운전 방법</strong>과 <strong>일본 교통법규</strong>를 몸으로 익히도록 만든 무료 3D 웹 게임입니다. 좌측통행과 우측 운전석, 빨간불에서는 우회전도 금지인 신호 규칙, 止まれ 표지의 완전 정지, 우회전은 크게·좌회전은 작게 도는 요령, 보행자 우선, 지정 주차장 이용까지 실제 규칙 그대로 판정합니다. 자세한 설명은 <a href="./guide.html">일본 운전 하는 법 총정리 가이드</a>를 읽어 보세요.</p>
         <button id="start-btn" class="secondary">자유 주행 <span class="kb-only">(Enter)</span> — 미션 없이 연습</button>
       </div>
     </div>

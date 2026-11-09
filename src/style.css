@@ -195,3 +195,6 @@ body.is-touch #rank-modal { padding: 12px 14px; max-height: 92vh; }
 body.is-touch .rank-cols { gap: 8px; font-size: 11px; }
 body.is-touch #rank-btn { display: none; }
 @media (max-width: 700px) { .rank-cols { grid-template-columns: 1fr; } }
+
+.seo-intro { font-size: 13px; color: var(--muted); line-height: 1.6; margin: 6px 0 0; }
+.seo-intro a { color: #9ad; }
